@@ -1,0 +1,239 @@
+{
+    "name": "Joke agent (with HTTP tool)",
+    "nodes": [
+        {
+            "parameters": {
+                "toolDescription": "Use this tool to retrieve jokes",
+                "url": "https://v2.jokeapi.dev/joke/",
+                "sendQuery": true,
+                "queryParameters": {
+                    "parameters": [
+                        {
+                            "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Name', ``, 'string') }}",
+                            "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequestTool",
+            "typeVersion": 4.2,
+            "position": [
+                -224,
+                256
+            ],
+            "id": "a9615eac-7845-4f4f-a5b0-fdec59f3751e",
+            "name": "Joke API"
+        },
+        {
+            "parameters": {
+                "toolDescription": "Use this tool to read about the joke api documentation, so that you can filter queries to the api based on the user prompt.",
+                "url": "https://v2.jokeapi.dev/",
+                "options": {},
+                "optimizeResponse": true,
+                "responseType": "html",
+                "onlyContent": true
+            },
+            "type": "n8n-nodes-base.httpRequestTool",
+            "typeVersion": 4.2,
+            "position": [
+                -48,
+                256
+            ],
+            "id": "a8f4b23a-89cb-4673-a595-6855ba1a6d10",
+            "name": "API docs"
+        },
+        {
+            "parameters": {
+                "sessionIdType": "customKey",
+                "sessionKey": "={{ $json.body.payload.phoneNumber }}"
+            },
+            "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "typeVersion": 1.3,
+            "position": [
+                -400,
+                272
+            ],
+            "id": "8ca3ae47-7e3d-42ed-ac35-bf2f187715eb",
+            "name": "Memory"
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "={{ $json.body.payload.message }}",
+                "options": {
+                    "systemMessage": "# SMS Joke Agent System Prompt\n\nYou are a fun and entertaining joke bot designed for SMS/text messaging. Your job is to deliver quick, engaging humor that works well in short message format.\n\n## SMS Communication Style\n\n### Key Adaptations for SMS\n- **Keep messages concise** - aim for 1-3 lines maximum per message\n- **Use SMS-friendly formatting** - minimal markdown, emoji welcome 👍\n- **Quick punchlines** - get to the joke quickly without long setups\n- **Natural texting flow** - feel like a friend texting jokes\n\n## Your Main Purpose\n\n- Tell jokes using the Joke API when users ask for them\n- Deliver humor optimized for quick reading\n- Keep conversations upbeat and positive\n- Adapt joke length and style for SMS constraints\n\n## How to Use the Joke API\n\n- Use the Joke API tool when users request jokes\n- Prefer shorter jokes that fit SMS format well\n- You can request specific joke types if users have preferences\n- Deliver jokes with SMS-appropriate enthusiasm\n\n## Interaction Style\n\n### When Users Ask for Jokes\n- Quick setup, immediate punchline\n- Use emoji for tone and reaction 😄\n- Follow up with \"More?\" or \"Another?\" for easy replies\n- Keep the conversation flowing naturally\n\n### SMS-Specific Guidelines\n- **Message length**: Break longer content into multiple texts if needed\n- **Response timing**: Feel immediate and responsive\n- **Tone**: Casual, friendly, like texting a friend\n- **Formatting**: Use line breaks sparingly, emoji for expression\n\n### Types of Humor for SMS\n- Quick one-liners (ideal)\n- Short puns and dad jokes\n- Brief setup/punchline jokes\n- Emoji-enhanced humor\n\n## Response Guidelines\n\n### Joke Delivery for SMS\n- **Setup**: 1 line max\n- **Punchline**: Immediate and clear\n- **Follow-up**: Quick engagement prompts\n- **Example**: \n  \"Why don't scientists trust atoms? ⚛️\n  Because they make up everything! \n  Want another? 😄\"\n\n### Conversation Flow\n- Remember joke preferences across texts\n- Keep responses snackable and easy to read\n- Use natural texting language (\"lol\", \"haha\", etc.)\n- Quick transitions between jokes and chat\n\n### Examples of SMS-Optimized Responses\n\n**User**: \"Tell me a joke\"\n**You**: \"Gotcha! 🤔 Why did the scarecrow win an award? 🌾 Because he was outstanding in his field! 👍 Another?\"\n\n**User**: \"That was bad lol\"\n**You**: \"Haha my bad! 😅 Let me redeem myself... *[uses Joke API]*\"\n\n**User**: \"Tech joke pls\"\n**You**: \"On it! 💻 Why do programmers prefer dark mode? Because light attracts bugs! 🐛 More?\"\n\n## Keep It SMS-Friendly\n\n- **Brevity is key** - respect the medium\n- **Emoji enhance tone** - but don't overdo it\n- **Quick back-and-forth** - maintain texting rhythm\n- **Low friction** - easy to respond and continue\n\nRemember: You're a texting buddy who tells great jokes. Keep it fun, quick, and perfect for mobile screens! 📱✨"
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 2.2,
+            "position": [
+                -448,
+                0
+            ],
+            "id": "fb541fe9-749d-4f22-a171-3a16eb1bdb4c",
+            "name": "Joke agent"
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "3bbf7ab8-3d3a-49aa-9ac8-9faf60cb0bfb",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2.1,
+            "position": [
+                -672,
+                0
+            ],
+            "id": "e1d43416-a1ae-49aa-aa12-f8925c52e8fe",
+            "name": "Webhook",
+            "webhookId": "3bbf7ab8-3d3a-49aa-9ac8-9faf60cb0bfb"
+        },
+        {
+            "parameters": {
+                "model": "x-ai/grok-4-fast:free",
+                "options": {}
+            },
+            "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+            "typeVersion": 1,
+            "position": [
+                -544,
+                272
+            ],
+            "id": "fdc96734-fd66-4b25-9909-618164f30154",
+            "name": "OpenRouter Chat Model",
+            "credentials": {
+                "openRouterApi": {
+                    "id": "bSgQaDzDHtrFVH3N",
+                    "name": "OpenRouter account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://api.sms-gate.app/3rdparty/v1/messages",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpBasicAuth",
+                "sendQuery": true,
+                "queryParameters": {
+                    "parameters": [
+                        {
+                            "name": "skipPhoneValidation",
+                            "value": "true"
+                        }
+                    ]
+                },
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n    \"textMessage\": {\n        \"text\": \"{{ $json.output }}\"\n    },\n    \"phoneNumbers\": [\n        \"{{ $('Webhook').item.json.body.payload.phoneNumber }}\"\n    ]\n}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                -144,
+                0
+            ],
+            "id": "0a4c051a-b43f-4e44-919b-19371078ab87",
+            "name": "HTTP Request",
+            "credentials": {
+                "httpBasicAuth": {
+                    "id": "TBrzFRhlGKLKuIdV",
+                    "name": "SMSGate Dev"
+                }
+            }
+        }
+    ],
+    "pinData": {},
+    "connections": {
+        "Joke API": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Joke agent",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "API docs": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Joke agent",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Memory": {
+            "ai_memory": [
+                [
+                    {
+                        "node": "Joke agent",
+                        "type": "ai_memory",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Joke agent",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "OpenRouter Chat Model": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "Joke agent",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Joke agent": {
+            "main": [
+                [
+                    {
+                        "node": "HTTP Request",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": false,
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "versionId": "665efaeb-429f-45c9-b905-e8daffc7be14",
+    "meta": {
+        "templateId": "joke_agent_with_http_tool",
+        "templateCredsSetupCompleted": true,
+        "instanceId": "b250378d714b69c245995af1f0573b1c0ed586fbc707edcf7092cb7ed0b52a93"
+    },
+    "id": "ZgCJkEDwvmQyeFKi",
+    "tags": []
+}
